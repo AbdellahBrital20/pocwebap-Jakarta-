@@ -1,0 +1,612 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Light Mode (default) */
+body {
+    font-family: 'Consolas', 'Courier New', monospace;
+    background: #f5f5f5;
+    min-height: 100vh;
+    color: #333333;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    padding: 15px 0;
+    border-bottom: 3px solid #B22222;
+    margin-bottom: 20px;
+    background: #ffffff;
+}
+
+.header h1 {
+    color: #B22222;
+    font-size: 2em;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.header .subtitle {
+    color: #666666;
+    margin-top: 5px;
+    font-size: 1em;
+}
+
+/* Card */
+.card {
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+/* Login Page */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    border-top: 4px solid #B22222;
+}
+
+.login-card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #B22222;
+    font-size: 1.5em;
+}
+
+/* Form Elements */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333333;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #999999;
+    background: #ffffff;
+    color: #333333;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #B22222;
+    box-shadow: 0 0 3px rgba(178, 34, 34, 0.3);
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 25px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Consolas', 'Courier New', monospace;
+    text-transform: uppercase;
+}
+
+.btn-primary {
+    background: #B22222;
+    color: #ffffff;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background: #8B0000;
+}
+
+.btn-secondary {
+    background: #ffffff;
+    color: #B22222;
+    border: 2px solid #B22222;
+}
+
+.btn-secondary:hover {
+    background: #B22222;
+    color: #ffffff;
+}
+
+/* Error Message */
+.error-message {
+    background: #ffe6e6;
+    border: 1px solid #B22222;
+    color: #8B0000;
+    padding: 10px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Test Info Box */
+.test-info {
+    margin-top: 20px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px dashed #cccccc;
+    text-align: center;
+}
+
+.test-info small {
+    color: #666666;
+}
+
+.test-info strong {
+    color: #B22222;
+}
+
+/* Criteria Page */
+.criteria-container {
+    padding: 10px 0;
+}
+
+.criteria-card {
+    max-width: 100%;
+    border-top: 4px solid #B22222;
+}
+
+.criteria-card h2 {
+    color: #B22222;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #cccccc;
+    font-size: 1.3em;
+}
+
+/* Form Section */
+.form-section {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #dddddd;
+}
+
+.form-section h3 {
+    color: #B22222;
+    margin-bottom: 10px;
+    font-size: 1em;
+    border-bottom: 1px solid #dddddd;
+    padding-bottom: 5px;
+}
+
+/* Checkbox Grid */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 5px;
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.checkbox-item:hover {
+    background: #fff0f0;
+    border-color: #B22222;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #B22222;
+}
+
+.checkbox-item label {
+    cursor: pointer;
+    color: #333333;
+    font-size: 12px;
+}
+
+/* Two Columns Layout */
+.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+/* Date Range */
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-range span {
+    color: #666666;
+}
+
+.date-range input[type="date"] {
+    padding: 6px;
+    border: 1px solid #999999;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.date-range input[type="date"]:focus {
+    outline: none;
+    border-color: #B22222;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #dddddd;
+}
+
+.form-actions .btn {
+    min-width: 150px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 15px;
+    margin-top: 20px;
+    color: #666666;
+    font-size: 0.85em;
+    border-top: 1px solid #dddddd;
+}
+
+.footer a {
+    color: #B22222;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Dark Mode Toggle Button */
+.theme-toggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 8px 15px;
+    background: #333333;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 12px;
+}
+
+.theme-toggle:hover {
+    background: #555555;
+}
+
+/* ================================
+   DARK MODE
+   ================================ */
+
+body.dark-mode {
+    background: #1a1a1a;
+    color: #00ff00;
+}
+
+body.dark-mode .header {
+    background: #0d0d0d;
+    border-bottom-color: #00ff00;
+}
+
+body.dark-mode .header h1 {
+    color: #00ff00;
+}
+
+body.dark-mode .header .subtitle {
+    color: #00cc00;
+}
+
+body.dark-mode .card {
+    background: #0d0d0d;
+    border-color: #00ff00;
+}
+
+body.dark-mode .login-card {
+    border-top-color: #00ff00;
+}
+
+body.dark-mode .login-card h2 {
+    color: #00ff00;
+}
+
+body.dark-mode .form-group label {
+    color: #00ff00;
+}
+
+body.dark-mode .form-group input,
+body.dark-mode .form-group select {
+    background: #0d0d0d;
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+body.dark-mode .form-group input:focus,
+body.dark-mode .form-group select:focus {
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+body.dark-mode .btn-primary {
+    background: #006600;
+    color: #00ff00;
+}
+
+body.dark-mode .btn-primary:hover {
+    background: #008800;
+}
+
+body.dark-mode .btn-secondary {
+    background: #0d0d0d;
+    color: #00ff00;
+    border-color: #00ff00;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background: #006600;
+}
+
+body.dark-mode .error-message {
+    background: #330000;
+    border-color: #ff0000;
+    color: #ff6666;
+}
+
+body.dark-mode .test-info {
+    background: #1a1a1a;
+    border-color: #00ff00;
+}
+
+body.dark-mode .test-info small {
+    color: #00cc00;
+}
+
+body.dark-mode .test-info strong {
+    color: #00ff00;
+}
+
+body.dark-mode .criteria-card {
+    border-top-color: #00ff00;
+}
+
+body.dark-mode .criteria-card h2 {
+    color: #00ff00;
+    border-bottom-color: #00ff00;
+}
+
+body.dark-mode .form-section {
+    background: #1a1a1a;
+    border-color: #00ff00;
+}
+
+body.dark-mode .form-section h3 {
+    color: #00ff00;
+    border-bottom-color: #00ff00;
+}
+
+body.dark-mode .checkbox-item {
+    background: #0d0d0d;
+    border-color: #00ff00;
+}
+
+body.dark-mode .checkbox-item:hover {
+    background: #003300;
+}
+
+body.dark-mode .checkbox-item label {
+    color: #00ff00;
+}
+
+body.dark-mode .date-range span {
+    color: #00cc00;
+}
+
+body.dark-mode .date-range input[type="date"] {
+    background: #0d0d0d;
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+body.dark-mode .form-actions {
+    border-top-color: #00ff00;
+}
+
+body.dark-mode .footer {
+    color: #00cc00;
+    border-top-color: #00ff00;
+}
+
+body.dark-mode .footer a {
+    color: #00ff00;
+}
+
+body.dark-mode .theme-toggle {
+    background: #00ff00;
+    color: #000000;
+}
+
+body.dark-mode .theme-toggle:hover {
+    background: #00cc00;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+    .checkbox-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .two-columns {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .checkbox-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ================================
+   RESULTS TABLE
+   ================================ */
+
+.results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #dddddd;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.data-table th,
+.data-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border: 1px solid #cccccc;
+}
+
+.data-table th {
+    background: #B22222;
+    color: #ffffff;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background: #f5f5f5;
+}
+
+.data-table tbody tr:hover {
+    background: #fff0f0;
+}
+
+.package-link {
+    color: #B22222;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.package-link:hover {
+    text-decoration: underline;
+}
+
+/* Dark Mode for Table */
+body.dark-mode .results-info {
+    border-bottom-color: #00ff00;
+}
+
+body.dark-mode .data-table th,
+body.dark-mode .data-table td {
+    border-color: #00ff00;
+}
+
+body.dark-mode .data-table th {
+    background: #006600;
+    color: #00ff00;
+}
+
+body.dark-mode .data-table tbody tr:nth-child(even) {
+    background: #1a1a1a;
+}
+
+body.dark-mode .data-table tbody tr:hover {
+    background: #003300;
+}
+
+body.dark-mode .package-link {
+    color: #00ff00;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #00ff00;
+}
+
+/* Sortable columns */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable:hover {
+    background-color: #8B0000;
+}
+
+/* Dark mode pagination */
+body.dark-mode #pageInfo {
+    color: #00ff00;
+}
+
+body.dark-mode .pagination button:disabled {
+    opacity: 0.5;
+}
+
+/* Light mode pagination */
+body:not(.dark-mode) #pageInfo {
+    color: #B22222;
+}
+
+body:not(.dark-mode) .sortable:hover {
+    background-color: #8B0000;
+}

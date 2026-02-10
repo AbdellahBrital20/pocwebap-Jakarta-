@@ -1,0 +1,7 @@
+com\euroclear\pocwebap\servlet\LoginServlet.class
+com\euroclear\pocwebap\service\PackageService.class
+com\euroclear\pocwebap\servlet\CriteriaServlet.class
+com\euroclear\pocwebap\model\Package.class
+com\euroclear\pocwebap\servlet\PackageServlet.class
+com\euroclear\pocwebap\servlet\ComponentServlet.class
+com\euroclear\pocwebap\model\Component.class
