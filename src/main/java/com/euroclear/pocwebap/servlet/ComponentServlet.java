@@ -8,11 +8,15 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import com.euroclear.pocwebap.model.Component;
 import com.euroclear.pocwebap.service.PackageService;
+import com.euroclear.pocwebap.util.Constants;
+import com.euroclear.pocwebap.util.InputSanitizer;
 
+/**
+ * Servlet pour afficher les composants d'un package
+ */
 @WebServlet("/package-detail")
 public class ComponentServlet extends HttpServlet {
     
@@ -22,28 +26,24 @@ public class ComponentServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // Vérifier si l'utilisateur est connecté
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+        // 
         
-        // Récupérer l'ID du package
-        String packageId = request.getParameter("id");
+        // Get and sanitize package ID (OWASP)
+        String packageId = InputSanitizer.sanitize(request.getParameter("id"));
         
-        if (packageId == null || packageId.trim().isEmpty()) {
-            request.setAttribute("error", "Package ID is required");
+        // Validate input
+        if (!InputSanitizer.isNotEmpty(packageId)) {
+            request.setAttribute(Constants.ATTR_ERROR, "Package ID is required");
             request.getRequestDispatcher("/packages.jsp").forward(request, response);
             return;
         }
         
-        // Récupérer les composants du package
+        // Get package components
         List<Component> components = packageService.getPackageComponents(packageId);
         
-        // Passer les résultats à la JSP
+        // Pass results to JSP
         request.setAttribute("packageId", packageId);
-        request.setAttribute("components", components);
+        request.setAttribute(Constants.ATTR_COMPONENTS, components);
         request.getRequestDispatcher("/package-detail.jsp").forward(request, response);
     }
 }

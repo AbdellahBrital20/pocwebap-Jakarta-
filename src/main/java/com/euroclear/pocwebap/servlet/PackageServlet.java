@@ -8,11 +8,15 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import com.euroclear.pocwebap.model.Package;
 import com.euroclear.pocwebap.service.PackageService;
+import com.euroclear.pocwebap.util.Constants;
+import com.euroclear.pocwebap.util.InputSanitizer;
 
+/**
+ * Servlet pour rechercher et afficher les packages
+ */
 @WebServlet("/packages")
 public class PackageServlet extends HttpServlet {
     
@@ -22,35 +26,30 @@ public class PackageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        // Vérifier si l'utilisateur est connecté
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
+        // Note: Authentication check is now handled by AuthenticationFilter
         
-        // Récupérer les paramètres de recherche
-        String packageName = request.getParameter("packageName");
+        // Get and sanitize search parameters (OWASP)
+        String packageName = InputSanitizer.sanitize(request.getParameter("packageName"));
         String[] statuses = request.getParameterValues("status");
         String[] levels = request.getParameterValues("level");
         String[] types = request.getParameterValues("type");
-        String creator = request.getParameter("creator");
-        String workRequest = request.getParameter("workRequest");
-        String action = request.getParameter("action");
-        String dept = request.getParameter("dept");
-        String installDateFrom = request.getParameter("installDateFrom");
-        String installDateTo = request.getParameter("installDateTo");
-        String creationDateFrom = request.getParameter("creationDateFrom");
-        String creationDateTo = request.getParameter("creationDateTo");
+        String creator = InputSanitizer.sanitize(request.getParameter("creator"));
+        String workRequest = InputSanitizer.sanitize(request.getParameter("workRequest"));
+        String action = InputSanitizer.sanitize(request.getParameter("action"));
+        String dept = InputSanitizer.sanitize(request.getParameter("dept"));
+        String installDateFrom = InputSanitizer.sanitize(request.getParameter("installDateFrom"));
+        String installDateTo = InputSanitizer.sanitize(request.getParameter("installDateTo"));
+        String creationDateFrom = InputSanitizer.sanitize(request.getParameter("creationDateFrom"));
+        String creationDateTo = InputSanitizer.sanitize(request.getParameter("creationDateTo"));
         
-        // Rechercher les packages
+        // Search packages
         List<Package> packages = packageService.searchPackages(
             packageName, statuses, levels, types, creator, workRequest,
             action, dept, installDateFrom, installDateTo, creationDateFrom, creationDateTo
         );
         
-        // Passer les résultats à la JSP
-        request.setAttribute("packages", packages);
+        // Pass results to JSP
+        request.setAttribute(Constants.ATTR_PACKAGES, packages);
         request.setAttribute("packageService", packageService);
         request.getRequestDispatcher("/packages.jsp").forward(request, response);
     }
