@@ -4,6 +4,7 @@ com\euroclear\pocwebap\filter\RateLimitFilter$RateLimitInfo.class
 com\euroclear\pocwebap\model\Package.class
 com\euroclear\pocwebap\config\AppConfig.class
 com\euroclear\pocwebap\servlet\ComponentServlet.class
+com\euroclear\pocwebap\servlet\LogoutServlet.class
 com\euroclear\pocwebap\util\InputSanitizer.class
 com\euroclear\pocwebap\model\Component.class
 com\euroclear\pocwebap\servlet\LoginServlet.class

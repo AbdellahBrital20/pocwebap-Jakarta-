@@ -11,6 +11,7 @@
 <body>
     <!-- Dark Mode Toggle Button -->
     <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+    <a href="${pageContext.request.contextPath}/logout" class="logout-btn">Logout</a>
 
     <div class="container">
     
