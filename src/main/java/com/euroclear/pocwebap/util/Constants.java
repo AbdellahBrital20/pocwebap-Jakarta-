@@ -5,6 +5,7 @@ package com.euroclear.pocwebap.util;
  */
 public class Constants {
 
+    public static final String SESSION_API_ID = "API_SESSION_ID";
     // Session attributes
     public static final String SESSION_USER = "user";
     public static final String SESSION_RACF_ID = "racfId";

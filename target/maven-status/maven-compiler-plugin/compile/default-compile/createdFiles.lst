@@ -12,3 +12,4 @@ com\euroclear\pocwebap\servlet\CriteriaServlet.class
 com\euroclear\pocwebap\servlet\PackageServlet.class
 com\euroclear\pocwebap\filter\AuthenticationFilter.class
 com\euroclear\pocwebap\filter\RateLimitFilter.class
+com\euroclear\pocwebap\service\RestApiService.class

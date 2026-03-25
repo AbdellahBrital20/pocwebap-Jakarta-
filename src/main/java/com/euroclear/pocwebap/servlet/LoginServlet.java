@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.euroclear.pocwebap.config.AppConfig;
+import com.euroclear.pocwebap.service.RestApiService;
 import com.euroclear.pocwebap.util.Constants;
 import com.euroclear.pocwebap.util.InputSanitizer;
 
@@ -20,7 +21,7 @@ import com.euroclear.pocwebap.util.InputSanitizer;
  */
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
-   
+    
     private static final String TEST_USER = "admin";
     private static final String TEST_PASSWORD = "admin";
     
@@ -36,7 +37,7 @@ public class LoginServlet extends HttpServlet {
         
         // Get and sanitize inputs (OWASP)
         String username = InputSanitizer.sanitize(request.getParameter("username"));
-        String password = request.getParameter("password"); // Don't sanitize password
+        String password = request.getParameter("password");
         
         // Validate inputs
         if (!InputSanitizer.isNotEmpty(username) || !InputSanitizer.isNotEmpty(password)) {
@@ -46,21 +47,27 @@ public class LoginServlet extends HttpServlet {
         }
         
         boolean authenticated = false;
+        String sessionId = null;
         
         if (AppConfig.isTestMode()) {
             // Test mode - check admin/admin
             authenticated = TEST_USER.equals(username) && TEST_PASSWORD.equals(password);
         } else {
             // Production mode - RACF authentication via REST API
-            // TODO: Implement APi
-            // authenticated = RestApiService.authenticate(username, password);
-            authenticated = false;
+            sessionId = RestApiService.login(username, password);
+            authenticated = (sessionId != null);
         }
         
         if (authenticated) {
             HttpSession session = request.getSession();
             session.setAttribute(Constants.SESSION_USER, username);
             session.setAttribute(Constants.SESSION_RACF_ID, username);
+            
+            // Store API session ID for future API calls
+            if (sessionId != null) {
+                session.setAttribute("API_SESSION_ID", sessionId);
+            }
+            
             response.sendRedirect(request.getContextPath() + "/criteria");
         } else {
             request.setAttribute(Constants.ATTR_ERROR, "Invalid username or password");
