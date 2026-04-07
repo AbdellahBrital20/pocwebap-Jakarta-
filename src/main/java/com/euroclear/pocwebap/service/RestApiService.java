@@ -197,4 +197,46 @@ public static String searchPackages(String packageFilter, String sessionId) {
         return null;
     }
 }
+
+/**
+ * Get components of a package
+ */
+public static String getComponents(String packageId, String sessionId) {
+    lastError = "";
+    try {
+        String baseUrl = AppConfig.getApiBaseUrl();
+        String encodedId = java.net.URLEncoder.encode(packageId, "UTF-8");
+        URL url = new URL(baseUrl + "component/packagelist?package=" + encodedId);
+        
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(AppConfig.getApiTimeout());
+        conn.setReadTimeout(AppConfig.getApiTimeout());
+        conn.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
+        conn.setRequestProperty("Accept", "application/json");
+        
+        int responseCode = conn.getResponseCode();
+        
+        if (responseCode == 200) {
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+            conn.disconnect();
+            return response.toString();
+        } else {
+            lastError = "HTTP " + responseCode + " from " + url;
+            conn.disconnect();
+            return null;
+        }
+        
+    } catch (Exception e) {
+        lastError = "Exception: " + e.getMessage();
+        return null;
+    }
+}
 }
