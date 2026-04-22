@@ -206,7 +206,7 @@ public static String getComponents(String packageId, String sessionId) {
     try {
         String baseUrl = AppConfig.getApiBaseUrl();
         String encodedId = java.net.URLEncoder.encode(packageId, "UTF-8");
-        URL url = new URL(baseUrl + "component/packagelist?package=" + encodedId);
+        URL url = new URL(baseUrl + "component?package=" + encodedId + "&longFormat=Y");
         
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");

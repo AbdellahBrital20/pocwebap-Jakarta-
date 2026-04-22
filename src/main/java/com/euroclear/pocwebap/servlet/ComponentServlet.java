@@ -20,94 +20,96 @@ import com.euroclear.pocwebap.util.InputSanitizer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * Servlet pour afficher les composants d'un package
- */
 @WebServlet("/package-detail")
 public class ComponentServlet extends HttpServlet {
     
     private PackageService packageService = new PackageService();
     
     @Override
-protected void doGet(HttpServletRequest request, HttpServletResponse response) 
-        throws ServletException, IOException {
-    
-    // Note: Authentication check is now handled by AuthenticationFilter
-    
-    HttpSession session = request.getSession(false);
-    
-    // Get and sanitize package ID (OWASP)
-    String packageId = InputSanitizer.sanitize(request.getParameter("id"));
-    
-    // Validate input
-    if (!InputSanitizer.isNotEmpty(packageId)) {
-        request.setAttribute(Constants.ATTR_ERROR, "Package ID is required");
-        request.getRequestDispatcher("/packages.jsp").forward(request, response);
-        return;
-    }
-    
-    List<Component> components = new ArrayList<>();
-    
-    if (AppConfig.isTestMode()) {
-        // Test mode - use JSON files
-        components = packageService.getPackageComponents(packageId);
-    } else {
-        // Production mode - call REST API
-        String sessionId = (String) session.getAttribute("API_SESSION_ID");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
         
-        if (sessionId != null) {
-            String jsonResponse = RestApiService.getComponents(packageId, sessionId);
-            
-            if (jsonResponse != null) {
-                components = parseComponentsFromJson(jsonResponse);
-            } else {
-                request.setAttribute(Constants.ATTR_ERROR, "Error: " + RestApiService.getLastError());
-            }
+        HttpSession session = request.getSession(false);
+        
+        String packageId = InputSanitizer.sanitize(request.getParameter("id"));
+        
+        if (packageId == null || packageId.isEmpty()) {
+            request.setAttribute(Constants.ATTR_ERROR, "Package ID is required");
+            request.getRequestDispatcher("/packages.jsp").forward(request, response);
+            return;
+        }
+        
+        List<Component> components = new ArrayList<>();
+        
+        if (AppConfig.isTestMode()) {
+            components = packageService.getPackageComponents(packageId);
         } else {
-            request.setAttribute(Constants.ATTR_ERROR, "Session expired. Please login again.");
-        }
-    }
-    
-    // Pass results to JSP
-    request.setAttribute("packageId", packageId);
-    request.setAttribute(Constants.ATTR_COMPONENTS, components);
-    request.getRequestDispatcher("/package-detail.jsp").forward(request, response);
-}
-
-private List<Component> parseComponentsFromJson(String json) {
-    List<Component> components = new ArrayList<>();
-    
-    try {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(json);
-        JsonNode results = root.get("result");
-        
-        if (results != null && results.isArray()) {
-            for (JsonNode node : results) {
-                Component comp = new Component();
-                comp.setApplName(node.has("applName") ? node.get("applName").asText() : "");
-                comp.setComponent(node.has("component") ? node.get("component").asText() : "");
-                comp.setComponentType(node.has("componentType") ? node.get("componentType").asText() : "");
-                comp.setComponentStatus(node.has("componentStatus") ? node.get("componentStatus").asText() : "");
-                comp.setDateLastModified(node.has("dateLastModified") ? node.get("dateLastModified").asText() : "");
-                comp.setTimeLastModified(node.has("timeLastModified") ? node.get("timeLastModified").asText() : "");
-                comp.setUpdater(node.has("updater") ? node.get("updater").asText() : "");
-                comp.setBuildProc(node.has("buildProc") ? node.get("buildProc").asText() : "");
-                comp.setLanguage(node.has("language") ? node.get("language").asText() : "");
-                comp.setVersion(node.has("version") ? node.get("version").asInt() : 0);
-                comp.setSourceLib(node.has("sourceLib") ? node.get("sourceLib").asText() : "");
-                comp.setTargetComponent(node.has("targetComponent") ? node.get("targetComponent").asText() : "");
-                comp.setUserOption03(node.has("userOption03") ? node.get("userOption03").asText() : "");
-                comp.setUserOption05(node.has("userOption05") ? node.get("userOption05").asText() : "");
-                comp.setUserOption07(node.has("userOption07") ? node.get("userOption07").asText() : "");
-                comp.setUserOption08(node.has("userOption08") ? node.get("userOption08").asText() : "");
-                components.add(comp);
+            String sessionId = (String) session.getAttribute("API_SESSION_ID");
+            
+            if (sessionId != null) {
+                String jsonResponse = RestApiService.getComponents(packageId, sessionId);
+                
+                if (jsonResponse != null) {
+                    components = parseComponentsFromJson(jsonResponse);
+                } else {
+                    request.setAttribute(Constants.ATTR_ERROR, "Error: " + RestApiService.getLastError());
+                }
+            } else {
+                request.setAttribute(Constants.ATTR_ERROR, "Session expired. Please login again.");
             }
         }
-    } catch (Exception e) {
-        System.err.println("Error parsing JSON: " + e.getMessage());
+        
+        request.setAttribute("packageId", packageId);
+        request.setAttribute(Constants.ATTR_COMPONENTS, components);
+        request.getRequestDispatcher("/package-detail.jsp").forward(request, response);
     }
     
-    return components;
-}
+    private List<Component> parseComponentsFromJson(String json) {
+        List<Component> components = new ArrayList<>();
+        
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(json);
+            JsonNode results = root.get("result");
+            
+            if (results != null && results.isArray()) {
+                for (JsonNode node : results) {
+                    Component comp = new Component();
+                    
+                    comp.setApplName(getStringValue(node, "applName"));
+                    comp.setComponent(getStringValue(node, "component"));
+                    comp.setComponentType(getStringValue(node, "componentType"));
+                    comp.setComponentStatus(getStringValue(node, "componentStatus"));
+                    comp.setDateLastModified(getStringValue(node, "dateLastModified"));
+                    comp.setTimeLastModified(getStringValue(node, "timeLastModified"));
+                    comp.setUpdater(getStringValue(node, "updater"));
+                    comp.setBuildProc(getStringValue(node, "buildProc"));
+                    comp.setLanguage(getStringValue(node, "language"));
+                    comp.setVersion(node.has("version") ? node.get("version").asInt() : 0);
+                    comp.setSourceLib(getStringValue(node, "sourceLib"));
+                    comp.setTargetComponent(getStringValue(node, "targetComponent"));
+                    comp.setTargetLoadLibType(getStringValue(node, "targetLoadLibType"));
+                    
+                    comp.setUserOption03(getStringValue(node, "userOption03"));
+                    comp.setUserOption05(getStringValue(node, "userOption05"));
+                    comp.setUserOption07(getStringValue(node, "userOption07"));
+                    comp.setUserOption08(getStringValue(node, "userOption08"));
+                    
+                    components.add(comp);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error parsing JSON: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return components;
+    }
+    
+    private String getStringValue(JsonNode node, String fieldName) {
+        if (node.has(fieldName) && !node.get(fieldName).isNull()) {
+            return node.get(fieldName).asText();
+        }
+        return "";
+    }
 }
