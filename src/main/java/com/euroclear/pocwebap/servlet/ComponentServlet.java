@@ -112,4 +112,33 @@ public class ComponentServlet extends HttpServlet {
         }
         return "";
     }
+
+    /*
+    // Enrichir les packages avec user records (AU, C, T)
+for (Package pkg : packages) {
+    String userRecJson = RestApiService.getPackageUserRecords(pkg.getPackageId(), sessionId);
+    if (userRecJson != null) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(userRecJson);
+            JsonNode result = root.get("result");
+            
+            if (result != null && result.isArray() && result.size() > 0) {
+                JsonNode rec = result.get(0);
+                
+                if (rec.has("auditReturnCode")) {
+                    pkg.setAuditRC(rec.get("auditReturnCode").asText());
+                }
+                if (rec.has("userVarlen101")) {
+                    pkg.setRefConc(rec.get("userVarlen101").asText());
+                }
+                if (rec.has("userVarlen102")) {
+                    pkg.setTgtRlsPrd(rec.get("userVarlen102").asText());
+                }
+            }
+        } catch (Exception e) {
+            // Ignore silently
+        }
+    }
+} */
 }

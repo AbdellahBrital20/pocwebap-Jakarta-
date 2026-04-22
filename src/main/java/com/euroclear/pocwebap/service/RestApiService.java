@@ -239,4 +239,42 @@ public static String getComponents(String packageId, String sessionId) {
         return null;
     }
 }
+
+
+/**
+ * Get package user records (for AU, C, T)
+ */
+public static String getPackageUserRecords(String packageId, String sessionId) {
+    try {
+        String baseUrl = AppConfig.getApiBaseUrl();
+        String encodedId = java.net.URLEncoder.encode(packageId, "UTF-8");
+        URL url = new URL(baseUrl + "package/userrecords?package=" + encodedId);
+        
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(AppConfig.getApiTimeout());
+        conn.setReadTimeout(AppConfig.getApiTimeout());
+        conn.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
+        conn.setRequestProperty("Accept", "application/json");
+        
+        if (conn.getResponseCode() == 200) {
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+            conn.disconnect();
+            return response.toString();
+        }
+        conn.disconnect();
+        return null;
+        
+    } catch (Exception e) {
+        return null;
+    }
+}
+
 }

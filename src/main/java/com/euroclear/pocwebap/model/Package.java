@@ -92,4 +92,44 @@ public class Package {
     public void setRequestorDept(String requestorDept) {
         this.requestorDept = requestorDept;
     }
+
+
+
+    // 
+    private String auditRC;
+private String refConc;
+private String tgtRlsPrd;
+
+public String getAuditRC() {
+    if (auditRC != null && !auditRC.isEmpty()) {
+        return auditRC;
+    }
+    return "---";
+}
+
+public void setAuditRC(String auditRC) {
+    this.auditRC = auditRC;
+}
+
+public String getRefConc() {
+    if (refConc != null && !refConc.isEmpty()) {
+        return refConc;
+    }
+    return "---";
+}
+
+public void setRefConc(String refConc) {
+    this.refConc = refConc;
+}
+
+public String getTgtRlsPrd() {
+    if (tgtRlsPrd != null && !tgtRlsPrd.isEmpty()) {
+        return tgtRlsPrd;
+    }
+    return "---";
+}
+
+public void setTgtRlsPrd(String tgtRlsPrd) {
+    this.tgtRlsPrd = tgtRlsPrd;
+}
 }

@@ -175,3 +175,96 @@
     </script>
 </body>
 </html>
+
+/**
+<thead>
+    <tr>
+        <th onclick="sortTable(0)" class="sortable">Package</th>
+        <th onclick="sortTable(1)" class="sortable">Sta</th>
+        <th onclick="sortTable(2)" class="sortable">Created</th>
+        <th onclick="sortTable(3)" class="sortable">Install</th>
+        <th onclick="sortTable(4)" class="sortable">WorkRequest</th>
+        <th onclick="sortTable(5)" class="sortable">Act</th>
+        <th onclick="sortTable(6)" class="sortable">MTL</th>
+        <th>AU</th>
+        <th onclick="sortTable(8)" class="sortable">Creator</th>
+        <th>C</th>
+        <th>T</th>
+        <th onclick="sortTable(11)" class="sortable">ECR/ESD/Other</th>
+    </tr>
+</thead> **/
+
+<tbody id="tableBody">
+<% for (Package pkg : packages) { %>
+    <tr class="data-row">
+        <!-- Package -->
+        <td>
+            <a href="${pageContext.request.contextPath}/package-detail?id=<%= pkg.getPackageId() %>" class="package-link">
+                <%= pkg.getPackageId() %>
+            </a>
+        </td>
+        
+        <!-- Sta -->
+        <td>
+            <%
+            String rawSta = pkg.getPackageStatus();
+            String sta = "---";
+            if (rawSta != null && !rawSta.isEmpty()) {
+                switch (rawSta) {
+                    case "1": sta = "APR"; break;
+                    case "2": sta = "BAK"; break;
+                    case "3": sta = "BAS"; break;
+                    case "4": sta = "CLS"; break;
+                    case "5": sta = "DEL"; break;
+                    case "6": sta = "DEV"; break;
+                    case "7": sta = "DIS"; break;
+                    case "8": sta = "FRZ"; break;
+                    case "9": sta = "INS"; break;
+                    case "A": sta = "OPN"; break;
+                    case "B": sta = "REJ"; break;
+                    case "C": sta = "TCC"; break;
+                    case "E": sta = "AIP"; break;
+                    case "F": sta = "XDS"; break;
+                    case "G": sta = "XIN"; break;
+                    case "H": sta = "XBK"; break;
+                    case "I": sta = "XRV"; break;
+                    case "J": sta = "IIP"; break;
+                    default: sta = rawSta; break;
+                }
+            }
+            %>
+            <%= sta %>
+        </td>
+        
+        <!-- Created -->
+        <td><%= pkg.getDateCreated() != null ? pkg.getDateCreated() : "---" %></td>
+        
+        <!-- Install -->
+        <td><%= pkg.getDateInstalled() != null ? pkg.getDateInstalled() : "---" %></td>
+        
+        <!-- WorkRequest -->
+        <td><%= pkg.getWorkChangeRequest() != null ? pkg.getWorkChangeRequest() : "---" %></td>
+        
+        <!-- Act -->
+        <td><%= pkg.getRequestorDept() != null && !pkg.getRequestorDept().isEmpty() ? pkg.getRequestorDept() : "---" %></td>
+        
+        <!-- MTL -->
+        <td><%= pkg.getRequestorPhone() != null && !pkg.getRequestorPhone().isEmpty() ? pkg.getRequestorPhone() : "---" %></td>
+        
+        <!-- AU -->
+        <td><%= pkg.getAuditRC() %></td>
+        
+        <!-- Creator -->
+        <td><%= pkg.getCreator() != null ? pkg.getCreator() : "---" %></td>
+        
+        <!-- C -->
+        <td><%= pkg.getTgtRlsPrd() %></td>
+        
+        <!-- T -->
+        <td><%= pkg.getRefConc() %></td>
+        
+        <!-- ECR/ESD/Other -->
+        <td><%= pkg.getPackageTitle() != null ? pkg.getPackageTitle() : "---" %></td>
+    </tr>
+<% } %>
+</tbody>
