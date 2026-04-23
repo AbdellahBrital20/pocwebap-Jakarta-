@@ -625,3 +625,23 @@ body:not(.dark-mode) #pageInfo {
 body:not(.dark-mode) .sortable:hover {
     background-color: #8B0000;
 }
+
+.results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pagination-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-top span {
+    min-width: 100px;
+    text-align: center;
+}

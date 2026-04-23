@@ -11,111 +11,136 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.euroclear.pocwebap.config.AppConfig;
 import com.euroclear.pocwebap.model.Package;
 import com.euroclear.pocwebap.service.PackageService;
+import com.euroclear.pocwebap.service.RestApiService;
 import com.euroclear.pocwebap.util.Constants;
 import com.euroclear.pocwebap.util.InputSanitizer;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.euroclear.pocwebap.service.RestApiService;
 
-/**
- * Servlet pour rechercher et afficher les packages
- */
 @WebServlet("/packages")
 public class PackageServlet extends HttpServlet {
-    
-    private PackageService packageService = new PackageService();
-    
-   @Override
-protected void doGet(HttpServletRequest request, HttpServletResponse response) 
-        throws ServletException, IOException {
-    
-    HttpSession session = request.getSession(false);
-    
-    String packageName = InputSanitizer.sanitize(request.getParameter("packageName"));
-    if (packageName == null || packageName.isEmpty()) {
-        packageName = "*";
-    }
-    
-    List<Package> packages = new ArrayList<>();
-    
-    if (AppConfig.isTestMode()) {
-        // Test mode - use JSON files
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+
+        // Get filter parameters
+        String packageName = InputSanitizer.sanitize(request.getParameter("packageName"));
         String[] statuses = request.getParameterValues("status");
-        String[] levels = request.getParameterValues("level");
-        String[] types = request.getParameterValues("type");
         String creator = InputSanitizer.sanitize(request.getParameter("creator"));
         String workRequest = InputSanitizer.sanitize(request.getParameter("workRequest"));
         String action = InputSanitizer.sanitize(request.getParameter("action"));
-        String dept = InputSanitizer.sanitize(request.getParameter("dept"));
-        String installDateFrom = InputSanitizer.sanitize(request.getParameter("installDateFrom"));
-        String installDateTo = InputSanitizer.sanitize(request.getParameter("installDateTo"));
-        String creationDateFrom = InputSanitizer.sanitize(request.getParameter("creationDateFrom"));
-        String creationDateTo = InputSanitizer.sanitize(request.getParameter("creationDateTo"));
-        
-        packages = packageService.searchPackages(
-            packageName, statuses, levels, types, creator, workRequest,
-            action, dept, installDateFrom, installDateTo, creationDateFrom, creationDateTo
-        );
-    } else {
-        // Production mode - call REST API
-        String sessionId = (String) session.getAttribute("API_SESSION_ID");
-        
-        if (sessionId != null) {
-            String jsonResponse = RestApiService.searchPackages(packageName, sessionId);
+        String material = InputSanitizer.sanitize(request.getParameter("dept"));
+        String installFrom = InputSanitizer.sanitize(request.getParameter("installDateFrom"));
+        String installTo = InputSanitizer.sanitize(request.getParameter("installDateTo"));
+        String createFrom = InputSanitizer.sanitize(request.getParameter("creationDateFrom"));
+        String createTo = InputSanitizer.sanitize(request.getParameter("creationDateTo"));
+
+        // Save filters to session
+        session.setAttribute("filter_packageName", packageName);
+        session.setAttribute("filter_statuses", statuses);
+        session.setAttribute("filter_creator", creator);
+        session.setAttribute("filter_workRequest", workRequest);
+        session.setAttribute("filter_action", action);
+        session.setAttribute("filter_material", material);
+        session.setAttribute("filter_installFrom", installFrom);
+        session.setAttribute("filter_installTo", installTo);
+        session.setAttribute("filter_createFrom", createFrom);
+        session.setAttribute("filter_createTo", createTo);
+
+        if (packageName == null || packageName.isEmpty()) {
+            packageName = "*";
+        }
+
+        List<Package> packages = new ArrayList<>();
+
+        if (session != null && session.getAttribute("API_SESSION_ID") != null) {
+            String sessionId = (String) session.getAttribute("API_SESSION_ID");
             
+            // Call API with filters
+            String jsonResponse = RestApiService.searchPackages(packageName, sessionId,
+                    statuses, creator, workRequest, action, material,
+                    installFrom, installTo, createFrom, createTo);
+
             if (jsonResponse != null) {
                 packages = parsePackagesFromJson(jsonResponse);
+
+                // Enrich with user records (C and T)
+                for (Package pkg : packages) {
+                    String userRecJson = RestApiService.getPackageUserRecords(pkg.getPackageId(), sessionId);
+                    if (userRecJson != null) {
+                        try {
+                            ObjectMapper mapper = new ObjectMapper();
+                            JsonNode root = mapper.readTree(userRecJson);
+                            JsonNode result = root.get("result");
+
+                            if (result != null && result.isArray() && result.size() > 0) {
+                                JsonNode rec = result.get(0);
+                                if (rec.has("userVarLen101")) {
+                                    pkg.setUserVarLen101(rec.get("userVarLen101").asText());
+                                }
+                                if (rec.has("userVarLen102")) {
+                                    pkg.setUserVarLen102(rec.get("userVarLen102").asText());
+                                }
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
+                }
             } else {
                 request.setAttribute(Constants.ATTR_ERROR, "Error: " + RestApiService.getLastError());
             }
         } else {
             request.setAttribute(Constants.ATTR_ERROR, "Session expired. Please login again.");
         }
-    }
-    
-    request.setAttribute(Constants.ATTR_PACKAGES, packages);
-    request.setAttribute("packageService", packageService);
-    request.getRequestDispatcher("/packages.jsp").forward(request, response);
-}
-    
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) 
-            throws ServletException, IOException {
-        doGet(request, response);
+
+        request.setAttribute(Constants.ATTR_PACKAGES, packages);
+        request.setAttribute("packageService", new PackageService());
+        request.getRequestDispatcher("/packages.jsp").forward(request, response);
     }
 
     private List<Package> parsePackagesFromJson(String json) {
-    List<Package> packages = new ArrayList<>();
-    
-    try {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(json);
-        JsonNode results = root.get("result");
-        
-        if (results != null && results.isArray()) {
-            for (JsonNode node : results) {
-                Package pkg = new Package();
-                pkg.setPackage(node.has("package") ? node.get("package").asText() : "");
-                pkg.setPackageTitle(node.has("packageTitle") ? node.get("packageTitle").asText() : "");
-                pkg.setPackageStatus(node.has("packageStatus") ? node.get("packageStatus").asText() : "");
-                pkg.setPackageLevel(node.has("packageLevel") ? node.get("packageLevel").asText() : "");
-                pkg.setPackageType(node.has("packageType") ? node.get("packageType").asText() : "");
-                pkg.setCreator(node.has("creator") ? node.get("creator").asText() : "");
-                pkg.setWorkChangeRequest(node.has("workChangeRequest") ? node.get("workChangeRequest").asText() : "");
-                pkg.setDateInstalled(node.has("dateInstalled") ? node.get("dateInstalled").asText() : "");
-                pkg.setDateCreated(node.has("dateCreated") ? node.get("dateCreated").asText() : "");
-                pkg.setRequestorDept(node.has("requestorDept") ? node.get("requestorDept").asText() : "");
-                packages.add(pkg);
+        List<Package> packages = new ArrayList<>();
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(json);
+            JsonNode results = root.get("result");
+
+            if (results != null && results.isArray()) {
+                for (JsonNode node : results) {
+                    Package pkg = new Package();
+                    pkg.setPackageId(getStringValue(node, "package"));
+                    pkg.setPackageTitle(getStringValue(node, "packageTitle"));
+                    pkg.setPackageStatus(getStringValue(node, "packageStatus"));
+                    pkg.setPackageType(getStringValue(node, "packageType"));
+                    pkg.setPackageLevel(getStringValue(node, "packageLevel"));
+                    pkg.setCreator(getStringValue(node, "creator"));
+                    pkg.setWorkChangeRequest(getStringValue(node, "workChangeRequest"));
+                    pkg.setDateCreated(getStringValue(node, "dateCreated"));
+                    pkg.setDateInstalled(getStringValue(node, "dateInstalled"));
+                    pkg.setRequestorDept(getStringValue(node, "requestorDept"));
+                    pkg.setRequestorPhone(getStringValue(node, "requestorPhone"));
+                    pkg.setRequestorName(getStringValue(node, "requestorName"));
+                    pkg.setAuditReturnCode(getStringValue(node, "auditReturnCode"));
+                    packages.add(pkg);
+                }
             }
+        } catch (Exception e) {
+            System.err.println("Error parsing JSON: " + e.getMessage());
         }
-    } catch (Exception e) {
-        System.err.println("Error parsing JSON: " + e.getMessage());
+
+        return packages;
     }
     
-    return packages;
-}
+    private String getStringValue(JsonNode node, String fieldName) {
+        if (node.has(fieldName) && !node.get(fieldName).isNull()) {
+            return node.get(fieldName).asText();
+        }
+        return "";
+    }
 }

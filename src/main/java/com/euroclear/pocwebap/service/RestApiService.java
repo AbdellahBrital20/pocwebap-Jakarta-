@@ -159,12 +159,62 @@ public static String getLastError() {
     /**
  * Search packages
  */
-public static String searchPackages(String packageFilter, String sessionId) {
+public static String searchPackages(String packageName, String sessionId, 
+        String[] statuses, String creator, String workRequest, String action,
+        String material, String installFrom, String installTo, 
+        String createFrom, String createTo) {
+    
     lastError = "";
     try {
         String baseUrl = AppConfig.getApiBaseUrl();
-        String encodedFilter = java.net.URLEncoder.encode(packageFilter, "UTF-8");
-        URL url = new URL(baseUrl + "package/search?package=" + encodedFilter);
+        StringBuilder urlBuilder = new StringBuilder(baseUrl + "package/search?");
+        
+        if (packageName != null && !packageName.isEmpty()) {
+            urlBuilder.append("package=").append(java.net.URLEncoder.encode(packageName, "UTF-8"));
+        } else {
+            urlBuilder.append("package=*");
+        }
+        
+        if (statuses != null && statuses.length > 0) {
+            for (String status : statuses) {
+                String param = getStatusParam(status);
+                if (param != null) {
+                    urlBuilder.append("&").append(param).append("=Y");
+                }
+            }
+        }
+        
+        if (creator != null && !creator.isEmpty()) {
+            urlBuilder.append("&creator=").append(java.net.URLEncoder.encode(creator, "UTF-8"));
+        }
+        
+        if (workRequest != null && !workRequest.isEmpty()) {
+            urlBuilder.append("&formNumber=").append(java.net.URLEncoder.encode(workRequest, "UTF-8"));
+        }
+        
+        if (action != null && !action.isEmpty() && !action.equals("---")) {
+            urlBuilder.append("&requestorDept=").append(java.net.URLEncoder.encode(action, "UTF-8"));
+        }
+        
+        if (material != null && !material.isEmpty()) {
+            urlBuilder.append("&requestorPhone=").append(java.net.URLEncoder.encode(material, "UTF-8"));
+        }
+        
+        if (installFrom != null && !installFrom.isEmpty()) {
+            urlBuilder.append("&searchFromDateInstalled=").append(formatDate(installFrom));
+        }
+        if (installTo != null && !installTo.isEmpty()) {
+            urlBuilder.append("&searchToDateInstalled=").append(formatDate(installTo));
+        }
+        
+        if (createFrom != null && !createFrom.isEmpty()) {
+            urlBuilder.append("&searchFromDateCreated=").append(formatDate(createFrom));
+        }
+        if (createTo != null && !createTo.isEmpty()) {
+            urlBuilder.append("&searchToDateCreated=").append(formatDate(createTo));
+        }
+        
+        URL url = new URL(urlBuilder.toString());
         
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
@@ -196,6 +246,72 @@ public static String searchPackages(String packageFilter, String sessionId) {
         lastError = "Exception: " + e.getMessage();
         return null;
     }
+}
+
+public static String searchPackages(String packageName, String sessionId) {
+    return searchPackages(packageName, sessionId, null, null, null, null, null, null, null, null, null);
+}
+
+// === GET PACKAGE USER RECORDS (for C and T) ===
+
+public static String getPackageUserRecords(String packageId, String sessionId) {
+    try {
+        String baseUrl = AppConfig.getApiBaseUrl();
+        String encodedId = java.net.URLEncoder.encode(packageId, "UTF-8");
+        URL url = new URL(baseUrl + "package/userrecords?package=" + encodedId);
+        
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(AppConfig.getApiTimeout());
+        conn.setReadTimeout(AppConfig.getApiTimeout());
+        conn.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
+        conn.setRequestProperty("Accept", "application/json");
+        
+        if (conn.getResponseCode() == 200) {
+            BufferedReader reader = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
+            conn.disconnect();
+            return response.toString();
+        }
+        conn.disconnect();
+        return null;
+        
+    } catch (Exception e) {
+        return null;
+    }
+}
+
+// === HELPER: Map status text to API parameter ===
+
+private static String getStatusParam(String status) {
+    switch (status) {
+        case "DEV": return "searchForDevelopmentStatus";
+        case "FRZ": return "searchForFrozenStatus";
+        case "APR": return "searchForApprovedStatus";
+        case "REJ": return "searchForRejectedStatus";
+        case "DIS": return "searchForDeliveredStatus";
+        case "INS": return "searchForInstalledStatus";
+        case "BAS": return "searchForBaselineStatus";
+        case "BAK": return "searchForBackedOutStatus";
+        case "DEL": return "searchForDeletedStatus";
+        case "OPN": return "searchForOpenedStatus";
+        case "CLO": return "searchForClosedStatus";
+        case "TCC": return "searchForTempChangeCycledStatus";
+        default: return null;
+    }
+}
+
+// === HELPER: Format date YYYY-MM-DD to YYYYMMDD ===
+
+private static String formatDate(String date) {
+    if (date == null || date.isEmpty()) return "";
+    return date.replace("-", "");
 }
 
 /**
@@ -236,43 +352,6 @@ public static String getComponents(String packageId, String sessionId) {
         
     } catch (Exception e) {
         lastError = "Exception: " + e.getMessage();
-        return null;
-    }
-}
-
-
-/**
- * Get package user records (for AU, C, T)
- */
-public static String getPackageUserRecords(String packageId, String sessionId) {
-    try {
-        String baseUrl = AppConfig.getApiBaseUrl();
-        String encodedId = java.net.URLEncoder.encode(packageId, "UTF-8");
-        URL url = new URL(baseUrl + "package/userrecords?package=" + encodedId);
-        
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.setConnectTimeout(AppConfig.getApiTimeout());
-        conn.setReadTimeout(AppConfig.getApiTimeout());
-        conn.setRequestProperty("Cookie", "JSESSIONID=" + sessionId);
-        conn.setRequestProperty("Accept", "application/json");
-        
-        if (conn.getResponseCode() == 200) {
-            BufferedReader reader = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            reader.close();
-            conn.disconnect();
-            return response.toString();
-        }
-        conn.disconnect();
-        return null;
-        
-    } catch (Exception e) {
         return null;
     }
 }
