@@ -48,15 +48,15 @@
                 <table class="data-table" id="packagesTable">
                     <thead>
                         <tr>
-                            <th onclick="sortTable(0)" class="sortable">Package</th>
-                            <th onclick="sortTable(1)" class="sortable">Sta</th>
-                            <th onclick="sortTable(2)" class="sortable">Created</th>
-                            <th onclick="sortTable(3)" class="sortable">Install</th>
+                            <th onclick="sortTable(0)" class="sortable">Package <span class="sort-arrow">▲▼</span></th>
+                            <th onclick="sortTable(1)" class="sortable">Sta <span class="sort-arrow">▲▼</span></th>
+                            <th onclick="sortTable(2)" class="sortable">Created <span class="sort-arrow">▲▼</span></th>
+                            <th onclick="sortTable(3)" class="sortable">Install <span class="sort-arrow">▲▼</span></th>
                             <th>WorkRequest</th>
                             <th>Act</th>
                             <th>MTL</th>
                             <th>AU</th>
-                            <th onclick="sortTable(8)" class="sortable">Creator</th>
+                            <th onclick="sortTable(8)" class="sortable">Creator <span class="sort-arrow">▲▼</span></th>
                             <th>C</th>
                             <th>T</th>
                             <th>ECR/ESD/Other</th>

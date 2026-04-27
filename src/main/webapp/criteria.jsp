@@ -127,7 +127,8 @@
                             <div class="form-group">
                                 <label for="action">Action</label>
                                 <select id="action" name="action">
-                                    <option value="" <%= savedAction.isEmpty() ? "selected" : "" %>>---</option>
+                                    <option value="" <%= savedAction.isEmpty() ? "selected" : "" %>>--- (ALL)</option>
+                                    <option value="EMPTY" <%= "EMPTY".equals(savedAction) ? "selected" : "" %>>--- (No Action)</option>
                                     <option value="PRE" <%= "PRE".equals(savedAction) ? "selected" : "" %>>PRE</option>
                                     <option value="SCR" <%= "SCR".equals(savedAction) ? "selected" : "" %>>SCR</option>
                                     <option value="RCP" <%= "RCP".equals(savedAction) ? "selected" : "" %>>RCP</option>

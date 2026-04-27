@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import com.euroclear.pocwebap.model.Package;
-import com.euroclear.pocwebap.service.PackageService;
 import com.euroclear.pocwebap.service.RestApiService;
 import com.euroclear.pocwebap.util.Constants;
 import com.euroclear.pocwebap.util.InputSanitizer;
@@ -28,29 +27,45 @@ public class PackageServlet extends HttpServlet {
 
         HttpSession session = request.getSession(false);
 
-        // Get filter parameters
-        String packageName = InputSanitizer.sanitize(request.getParameter("packageName"));
-        String[] statuses = request.getParameterValues("status");
-        String creator = InputSanitizer.sanitize(request.getParameter("creator"));
-        String workRequest = InputSanitizer.sanitize(request.getParameter("workRequest"));
-        String action = InputSanitizer.sanitize(request.getParameter("action"));
-        String material = InputSanitizer.sanitize(request.getParameter("dept"));
-        String installFrom = InputSanitizer.sanitize(request.getParameter("installDateFrom"));
-        String installTo = InputSanitizer.sanitize(request.getParameter("installDateTo"));
-        String createFrom = InputSanitizer.sanitize(request.getParameter("creationDateFrom"));
-        String createTo = InputSanitizer.sanitize(request.getParameter("creationDateTo"));
-
-        // Save filters to session
-        session.setAttribute("filter_packageName", packageName);
-        session.setAttribute("filter_statuses", statuses);
-        session.setAttribute("filter_creator", creator);
-        session.setAttribute("filter_workRequest", workRequest);
-        session.setAttribute("filter_action", action);
-        session.setAttribute("filter_material", material);
-        session.setAttribute("filter_installFrom", installFrom);
-        session.setAttribute("filter_installTo", installTo);
-        session.setAttribute("filter_createFrom", createFrom);
-        session.setAttribute("filter_createTo", createTo);
+        String packageName;
+        String[] statuses;
+        String creator, workRequest, action, material, installFrom, installTo, createFrom, createTo;
+        
+        if (request.getParameter("packageName") != null || request.getParameter("status") != null 
+                || request.getParameter("creator") != null) {
+            packageName = InputSanitizer.sanitize(request.getParameter("packageName"));
+            statuses = request.getParameterValues("status");
+            creator = InputSanitizer.sanitize(request.getParameter("creator"));
+            workRequest = InputSanitizer.sanitize(request.getParameter("workRequest"));
+            action = InputSanitizer.sanitize(request.getParameter("action"));
+            material = InputSanitizer.sanitize(request.getParameter("dept"));
+            installFrom = InputSanitizer.sanitize(request.getParameter("installDateFrom"));
+            installTo = InputSanitizer.sanitize(request.getParameter("installDateTo"));
+            createFrom = InputSanitizer.sanitize(request.getParameter("creationDateFrom"));
+            createTo = InputSanitizer.sanitize(request.getParameter("creationDateTo"));
+            
+            session.setAttribute("filter_packageName", packageName);
+            session.setAttribute("filter_statuses", statuses);
+            session.setAttribute("filter_creator", creator);
+            session.setAttribute("filter_workRequest", workRequest);
+            session.setAttribute("filter_action", action);
+            session.setAttribute("filter_material", material);
+            session.setAttribute("filter_installFrom", installFrom);
+            session.setAttribute("filter_installTo", installTo);
+            session.setAttribute("filter_createFrom", createFrom);
+            session.setAttribute("filter_createTo", createTo);
+        } else {
+            packageName = (String) session.getAttribute("filter_packageName");
+            statuses = (String[]) session.getAttribute("filter_statuses");
+            creator = (String) session.getAttribute("filter_creator");
+            workRequest = (String) session.getAttribute("filter_workRequest");
+            action = (String) session.getAttribute("filter_action");
+            material = (String) session.getAttribute("filter_material");
+            installFrom = (String) session.getAttribute("filter_installFrom");
+            installTo = (String) session.getAttribute("filter_installTo");
+            createFrom = (String) session.getAttribute("filter_createFrom");
+            createTo = (String) session.getAttribute("filter_createTo");
+        }
 
         if (packageName == null || packageName.isEmpty()) {
             packageName = "*";
@@ -61,7 +76,6 @@ public class PackageServlet extends HttpServlet {
         if (session != null && session.getAttribute("API_SESSION_ID") != null) {
             String sessionId = (String) session.getAttribute("API_SESSION_ID");
             
-            // Call API with filters
             String jsonResponse = RestApiService.searchPackages(packageName, sessionId,
                     statuses, creator, workRequest, action, material,
                     installFrom, installTo, createFrom, createTo);
@@ -69,7 +83,6 @@ public class PackageServlet extends HttpServlet {
             if (jsonResponse != null) {
                 packages = parsePackagesFromJson(jsonResponse);
 
-                // Enrich with user records (C and T)
                 for (Package pkg : packages) {
                     String userRecJson = RestApiService.getPackageUserRecords(pkg.getPackageId(), sessionId);
                     if (userRecJson != null) {
@@ -99,7 +112,6 @@ public class PackageServlet extends HttpServlet {
         }
 
         request.setAttribute(Constants.ATTR_PACKAGES, packages);
-        request.setAttribute("packageService", new PackageService());
         request.getRequestDispatcher("/packages.jsp").forward(request, response);
     }
 

@@ -192,8 +192,12 @@ public static String searchPackages(String packageName, String sessionId,
             urlBuilder.append("&formNumber=").append(java.net.URLEncoder.encode(workRequest, "UTF-8"));
         }
         
-        if (action != null && !action.isEmpty() && !action.equals("---")) {
-            urlBuilder.append("&requestorDept=").append(java.net.URLEncoder.encode(action, "UTF-8"));
+        if (action != null && !action.isEmpty()) {
+            if (action.equals("EMPTY")) {
+                urlBuilder.append("&requestorDept=---");
+            } else {
+                urlBuilder.append("&requestorDept=").append(java.net.URLEncoder.encode(action, "UTF-8"));
+            }
         }
         
         if (material != null && !material.isEmpty()) {
